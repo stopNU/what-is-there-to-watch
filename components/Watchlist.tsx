@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import AddEntryModal from "./AddEntryModal";
 import EntryCard from "./EntryCard";
-import { PLATFORMS } from "@/lib/types";
+import PlatformFilter from "./PlatformFilter";
 import type { WatchEntry, ListTab, Platform } from "@/lib/types";
 
 const TABS: { id: ListTab; label: string }[] = [
@@ -96,28 +96,8 @@ export default function Watchlist() {
         </div>
 
         {/* Filters */}
-        <div className="mb-5 flex flex-wrap gap-2">
-          <select
-            className="rounded-lg bg-gray-800 px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            value={filterPlatform}
-            onChange={(e) => setFilterPlatform(e.target.value as Platform | "all")}
-          >
-            <option value="all">All platforms</option>
-            {PLATFORMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-
-          {filterPlatform !== "all" && (
-            <button
-              onClick={() => setFilterPlatform("all")}
-              className="rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
-            >
-              Clear filter
-            </button>
-          )}
+        <div className="mb-5">
+          <PlatformFilter value={filterPlatform} onChange={setFilterPlatform} />
         </div>
 
         {/* List */}
