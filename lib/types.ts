@@ -21,6 +21,7 @@ export interface WatchEntry {
   season?: number;
   platform: Platform;
   imdbRating?: number;
+  imdbUrl?: string;
   list: ListTab;
   addedAt: string;
 }

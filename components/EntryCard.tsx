@@ -12,7 +12,18 @@ export default function EntryCard({ entry, onDelete }: Props) {
     <div className="group flex items-start justify-between rounded-xl bg-gray-800 px-4 py-3 hover:bg-gray-750 transition-colors">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold text-white truncate">{entry.name}</span>
+          {entry.imdbUrl ? (
+            <a
+              href={entry.imdbUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-white truncate hover:text-yellow-400 transition-colors"
+            >
+              {entry.name}
+            </a>
+          ) : (
+            <span className="font-semibold text-white truncate">{entry.name}</span>
+          )}
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
               entry.type === "series"

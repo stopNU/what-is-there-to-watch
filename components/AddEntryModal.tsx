@@ -16,6 +16,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
   const [season, setSeason] = useState("");
   const [platform, setPlatform] = useState<Platform>("Netflix");
   const [imdbRating, setImdbRating] = useState("");
+  const [imdbUrl, setImdbUrl] = useState("");
   const [list, setList] = useState<ListTab>(activeList);
   const [saving, setSaving] = useState(false);
 
@@ -29,6 +30,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
       season: type === "series" && season ? parseInt(season) : undefined,
       platform,
       imdbRating: imdbRating ? parseFloat(imdbRating) : undefined,
+      imdbUrl: imdbUrl.trim() || undefined,
       list,
     });
     setSaving(false);
@@ -115,6 +117,17 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
                 onChange={(e) => setImdbRating(e.target.value)}
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm text-gray-400">IMDB URL</label>
+            <input
+              type="url"
+              className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="https://www.imdb.com/title/tt..."
+              value={imdbUrl}
+              onChange={(e) => setImdbUrl(e.target.value)}
+            />
           </div>
 
           <div>
