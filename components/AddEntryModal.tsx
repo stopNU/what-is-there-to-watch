@@ -31,13 +31,23 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
     e.preventDefault();
     if (!name.trim() || platforms.length === 0) return;
     setSaving(true);
+
+    let posterUrl: string | undefined;
+    const trimmedUrl = imdbUrl.trim();
+    if (trimmedUrl) {
+      const res = await fetch(`/api/fetch-poster?url=${encodeURIComponent(trimmedUrl)}`);
+      const data = await res.json();
+      posterUrl = data.posterUrl ?? undefined;
+    }
+
     await onAdd({
       name: name.trim(),
       type,
       season: type === "series" && season ? parseInt(season) : undefined,
       platforms,
       imdbRating: imdbRating ? parseFloat(imdbRating) : undefined,
-      imdbUrl: imdbUrl.trim() || undefined,
+      imdbUrl: trimmedUrl || undefined,
+      posterUrl,
       list,
     });
     setSaving(false);

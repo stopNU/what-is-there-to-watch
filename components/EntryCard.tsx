@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { WatchEntry } from "@/lib/types";
 
 interface Props {
@@ -9,7 +10,20 @@ interface Props {
 
 export default function EntryCard({ entry, onDelete }: Props) {
   return (
-    <div className="group flex items-start justify-between rounded-xl bg-gray-800 px-4 py-3 hover:bg-gray-750 transition-colors">
+    <div className="group flex items-start gap-3 rounded-xl bg-gray-800 p-3 transition-colors">
+      {entry.posterUrl && (
+        <div className="shrink-0">
+          <Image
+            src={entry.posterUrl}
+            alt={entry.name}
+            width={48}
+            height={72}
+            className="rounded-md object-cover"
+            unoptimized
+          />
+        </div>
+      )}
+
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           {entry.imdbUrl ? (
@@ -49,9 +63,10 @@ export default function EntryCard({ entry, onDelete }: Props) {
           )}
         </div>
       </div>
+
       <button
         onClick={() => onDelete(entry.id)}
-        className="ml-3 mt-0.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all text-lg leading-none"
+        className="ml-1 mt-0.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all text-lg leading-none"
         title="Remove"
       >
         ×

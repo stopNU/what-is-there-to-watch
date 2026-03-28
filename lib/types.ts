@@ -22,6 +22,7 @@ export interface WatchEntry {
   platforms: Platform[];
   imdbRating?: number;
   imdbUrl?: string;
+  posterUrl?: string;
   list: ListTab;
   addedAt: string;
 }
