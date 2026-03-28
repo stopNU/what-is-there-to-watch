@@ -12,8 +12,8 @@ interface Props {
 export default function EntryCard({ entry, onEdit, onDelete }: Props) {
   return (
     <div className="group flex items-start gap-3 rounded-xl bg-gray-800 p-3 transition-colors">
-      {entry.posterUrl && (
-        <div className="shrink-0">
+      <div className="shrink-0">
+        {entry.posterUrl ? (
           <Image
             src={entry.posterUrl}
             alt={entry.name}
@@ -22,8 +22,12 @@ export default function EntryCard({ entry, onEdit, onDelete }: Props) {
             className="rounded-md object-cover"
             unoptimized
           />
-        </div>
-      )}
+        ) : (
+          <div className="flex h-[72px] w-[48px] items-center justify-center rounded-md bg-gray-700 text-xl text-gray-500">
+            ?
+          </div>
+        )}
+      </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
