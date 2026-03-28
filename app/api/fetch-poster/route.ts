@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     );
     const data = await res.json();
     const posterUrl = data.Poster && data.Poster !== "N/A" ? data.Poster : null;
-    return NextResponse.json({ posterUrl });
+    const imdbRating = data.imdbRating && data.imdbRating !== "N/A" ? parseFloat(data.imdbRating) : null;
+    return NextResponse.json({ posterUrl, imdbRating });
   } catch (err) {
     console.error("fetch-poster error:", err);
     return NextResponse.json({ posterUrl: null });

@@ -33,11 +33,13 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
     setSaving(true);
 
     let posterUrl: string | undefined;
+    let resolvedRating = imdbRating ? parseFloat(imdbRating) : undefined;
     const trimmedUrl = imdbUrl.trim();
     if (trimmedUrl) {
       const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(trimmedUrl)}`);
       const data = await res.json();
       posterUrl = data.posterUrl ?? undefined;
+      if (data.imdbRating != null) resolvedRating = data.imdbRating;
     }
 
     await onAdd({
@@ -45,7 +47,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
       type,
       season: type === "series" && season ? parseInt(season) : undefined,
       platforms,
-      imdbRating: imdbRating ? parseFloat(imdbRating) : undefined,
+      imdbRating: resolvedRating,
       imdbUrl: trimmedUrl || undefined,
       posterUrl,
       list,
@@ -134,7 +136,18 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-sm text-gray-400">IMDB URL</label>
+            <input
+              type="url"
+              className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="https://www.imdb.com/title/tt..."
+              value={imdbUrl}
+              onChange={(e) => setImdbUrl(e.target.value)}
+            />
+          </div>
+
+          {!imdbUrl.trim() && (
             <div>
               <label className="mb-1 block text-sm text-gray-400">IMDB Rating</label>
               <input
@@ -148,18 +161,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
                 onChange={(e) => setImdbRating(e.target.value)}
               />
             </div>
-
-            <div>
-              <label className="mb-1 block text-sm text-gray-400">IMDB URL</label>
-              <input
-                type="url"
-                className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="https://www.imdb.com/title/tt..."
-                value={imdbUrl}
-                onChange={(e) => setImdbUrl(e.target.value)}
-              />
-            </div>
-          </div>
+          )}
 
           <div>
             <label className="mb-1 block text-sm text-gray-400">List</label>
