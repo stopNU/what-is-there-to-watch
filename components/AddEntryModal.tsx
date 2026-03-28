@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PLATFORMS } from "@/lib/types";
+import { PLATFORM_META } from "@/lib/platformMeta";
 import type { WatchEntry, ListTab, EntryType, Platform } from "@/lib/types";
 
 interface Props {
@@ -14,21 +15,27 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
   const [name, setName] = useState("");
   const [type, setType] = useState<EntryType>("series");
   const [season, setSeason] = useState("");
-  const [platform, setPlatform] = useState<Platform>("Netflix");
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [imdbRating, setImdbRating] = useState("");
   const [imdbUrl, setImdbUrl] = useState("");
   const [list, setList] = useState<ListTab>(activeList);
   const [saving, setSaving] = useState(false);
 
+  function togglePlatform(p: Platform) {
+    setPlatforms((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || platforms.length === 0) return;
     setSaving(true);
     await onAdd({
       name: name.trim(),
       type,
       season: type === "series" && season ? parseInt(season) : undefined,
-      platform,
+      platforms,
       imdbRating: imdbRating ? parseFloat(imdbRating) : undefined,
       imdbUrl: imdbUrl.trim() || undefined,
       list,
@@ -69,9 +76,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
 
             {type === "series" && (
               <div>
-                <label className="mb-1 block text-sm text-gray-400">
-                  Season
-                </label>
+                <label className="mb-1 block text-sm text-gray-400">Season</label>
                 <input
                   type="number"
                   min="1"
@@ -84,28 +89,44 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
             )}
           </div>
 
+          <div>
+            <label className="mb-2 block text-sm text-gray-400">
+              Platform
+              {platforms.length === 0 && (
+                <span className="ml-1 text-red-400">*</span>
+              )}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {PLATFORMS.map((p) => {
+                const meta = PLATFORM_META[p];
+                const active = platforms.includes(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => togglePlatform(p)}
+                    style={
+                      active
+                        ? { color: meta.color, background: meta.bg, borderColor: meta.color }
+                        : {}
+                    }
+                    className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-all ${
+                      active
+                        ? "border-current"
+                        : "border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200"
+                    }`}
+                  >
+                    {meta.icon && <span>{meta.icon}</span>}
+                    <span>{p}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm text-gray-400">
-                Platform
-              </label>
-              <select
-                className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value as Platform)}
-              >
-                {PLATFORMS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm text-gray-400">
-                IMDB Rating
-              </label>
+              <label className="mb-1 block text-sm text-gray-400">IMDB Rating</label>
               <input
                 type="number"
                 min="0"
@@ -117,17 +138,17 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
                 onChange={(e) => setImdbRating(e.target.value)}
               />
             </div>
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">IMDB URL</label>
-            <input
-              type="url"
-              className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="https://www.imdb.com/title/tt..."
-              value={imdbUrl}
-              onChange={(e) => setImdbUrl(e.target.value)}
-            />
+            <div>
+              <label className="mb-1 block text-sm text-gray-400">IMDB URL</label>
+              <input
+                type="url"
+                className="w-full rounded-lg bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://www.imdb.com/title/tt..."
+                value={imdbUrl}
+                onChange={(e) => setImdbUrl(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>
@@ -153,7 +174,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || platforms.length === 0}
               className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
             >
               {saving ? "Adding..." : "Add"}

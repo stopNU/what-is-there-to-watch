@@ -40,7 +40,7 @@ export default function EntryCard({ entry, onDelete }: Props) {
           )}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-400">
-          <span>{entry.platform}</span>
+          <span>{entry.platforms?.join(", ")}</span>
           {entry.imdbRating != null && (
             <span className="flex items-center gap-1">
               <span className="text-yellow-400">★</span>

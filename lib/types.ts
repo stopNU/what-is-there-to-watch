@@ -19,7 +19,7 @@ export interface WatchEntry {
   name: string;
   type: EntryType;
   season?: number;
-  platform: Platform;
+  platforms: Platform[];
   imdbRating?: number;
   imdbUrl?: string;
   list: ListTab;

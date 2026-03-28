@@ -49,7 +49,7 @@ export default function Watchlist() {
 
   const filtered = entries.filter((e) => {
     if (e.list !== activeTab) return false;
-    if (filterPlatform !== "all" && e.platform !== filterPlatform) return false;
+    if (filterPlatform !== "all" && !e.platforms?.includes(filterPlatform)) return false;
     return true;
   });
 
