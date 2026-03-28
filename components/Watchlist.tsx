@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import AddEntryModal from "./AddEntryModal";
 import EntryCard from "./EntryCard";
 import { PLATFORMS } from "@/lib/types";
-import type { WatchEntry, ListTab, EntryType, Platform } from "@/lib/types";
+import type { WatchEntry, ListTab, Platform } from "@/lib/types";
 
 const TABS: { id: ListTab; label: string }[] = [
   { id: "man", label: "The Man" },
@@ -16,7 +16,6 @@ export default function Watchlist() {
   const [entries, setEntries] = useState<WatchEntry[]>([]);
   const [activeTab, setActiveTab] = useState<ListTab>("shared");
   const [showModal, setShowModal] = useState(false);
-  const [filterType, setFilterType] = useState<EntryType | "all">("all");
   const [filterPlatform, setFilterPlatform] = useState<Platform | "all">("all");
   const [loading, setLoading] = useState(true);
 
@@ -48,12 +47,14 @@ export default function Watchlist() {
     setEntries((prev) => prev.filter((e) => e.id !== id));
   }
 
-  const visible = entries.filter((e) => {
+  const filtered = entries.filter((e) => {
     if (e.list !== activeTab) return false;
-    if (filterType !== "all" && e.type !== filterType) return false;
     if (filterPlatform !== "all" && e.platform !== filterPlatform) return false;
     return true;
   });
+
+  const series = filtered.filter((e) => e.type === "series");
+  const movies = filtered.filter((e) => e.type === "movie");
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -98,20 +99,8 @@ export default function Watchlist() {
         <div className="mb-5 flex flex-wrap gap-2">
           <select
             className="rounded-lg bg-gray-800 px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value as EntryType | "all")}
-          >
-            <option value="all">All types</option>
-            <option value="series">Series</option>
-            <option value="movie">Movies</option>
-          </select>
-
-          <select
-            className="rounded-lg bg-gray-800 px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             value={filterPlatform}
-            onChange={(e) =>
-              setFilterPlatform(e.target.value as Platform | "all")
-            }
+            onChange={(e) => setFilterPlatform(e.target.value as Platform | "all")}
           >
             <option value="all">All platforms</option>
             {PLATFORMS.map((p) => (
@@ -121,15 +110,12 @@ export default function Watchlist() {
             ))}
           </select>
 
-          {(filterType !== "all" || filterPlatform !== "all") && (
+          {filterPlatform !== "all" && (
             <button
-              onClick={() => {
-                setFilterType("all");
-                setFilterPlatform("all");
-              }}
+              onClick={() => setFilterPlatform("all")}
               className="rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
             >
-              Clear filters
+              Clear filter
             </button>
           )}
         </div>
@@ -137,17 +123,38 @@ export default function Watchlist() {
         {/* List */}
         {loading ? (
           <div className="py-16 text-center text-gray-500">Loading...</div>
-        ) : visible.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="py-16 text-center text-gray-500">
             {entries.filter((e) => e.list === activeTab).length === 0
               ? "Nothing here yet. Add something to watch!"
               : "No entries match the current filters."}
           </div>
         ) : (
-          <div className="space-y-2">
-            {visible.map((entry) => (
-              <EntryCard key={entry.id} entry={entry} onDelete={handleDelete} />
-            ))}
+          <div className="space-y-8">
+            {series.length > 0 && (
+              <section>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                  Series <span className="ml-1 opacity-60">{series.length}</span>
+                </h2>
+                <div className="space-y-2">
+                  {series.map((entry) => (
+                    <EntryCard key={entry.id} entry={entry} onDelete={handleDelete} />
+                  ))}
+                </div>
+              </section>
+            )}
+            {movies.length > 0 && (
+              <section>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                  Movies <span className="ml-1 opacity-60">{movies.length}</span>
+                </h2>
+                <div className="space-y-2">
+                  {movies.map((entry) => (
+                    <EntryCard key={entry.id} entry={entry} onDelete={handleDelete} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
