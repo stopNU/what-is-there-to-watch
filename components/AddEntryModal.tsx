@@ -7,19 +7,23 @@ import type { WatchEntry, ListTab, EntryType, Platform } from "@/lib/types";
 
 interface Props {
   activeList: ListTab;
+  editEntry?: WatchEntry;
   onAdd: (entry: Omit<WatchEntry, "id" | "addedAt">) => Promise<void>;
+  onEdit: (entry: WatchEntry) => Promise<void>;
   onClose: () => void;
 }
 
-export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
-  const [name, setName] = useState("");
-  const [type, setType] = useState<EntryType>("series");
-  const [season, setSeason] = useState("");
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [imdbRating, setImdbRating] = useState("");
-  const [imdbUrl, setImdbUrl] = useState("");
-  const [list, setList] = useState<ListTab>(activeList);
+export default function AddEntryModal({ activeList, editEntry, onAdd, onEdit, onClose }: Props) {
+  const [name, setName] = useState(editEntry?.name ?? "");
+  const [type, setType] = useState<EntryType>(editEntry?.type ?? "series");
+  const [season, setSeason] = useState(editEntry?.season?.toString() ?? "");
+  const [platforms, setPlatforms] = useState<Platform[]>(editEntry?.platforms ?? []);
+  const [imdbRating, setImdbRating] = useState(editEntry?.imdbRating?.toString() ?? "");
+  const [imdbUrl, setImdbUrl] = useState(editEntry?.imdbUrl ?? "");
+  const [list, setList] = useState<ListTab>(editEntry?.list ?? activeList);
   const [saving, setSaving] = useState(false);
+
+  const isEdit = !!editEntry;
 
   function togglePlatform(p: Platform) {
     setPlatforms((prev) =>
@@ -27,31 +31,51 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
     );
   }
 
+  async function fetchImdbData(url: string) {
+    const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(url)}`);
+    return res.json();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || platforms.length === 0) return;
     setSaving(true);
 
-    let posterUrl: string | undefined;
+    let posterUrl: string | undefined = editEntry?.posterUrl;
     let resolvedRating = imdbRating ? parseFloat(imdbRating) : undefined;
     const trimmedUrl = imdbUrl.trim();
-    if (trimmedUrl) {
-      const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(trimmedUrl)}`);
-      const data = await res.json();
+
+    if (trimmedUrl && trimmedUrl !== editEntry?.imdbUrl) {
+      const data = await fetchImdbData(trimmedUrl);
       posterUrl = data.posterUrl ?? undefined;
       if (data.imdbRating != null) resolvedRating = data.imdbRating;
     }
 
-    await onAdd({
-      name: name.trim(),
-      type,
-      season: type === "series" && season ? parseInt(season) : undefined,
-      platforms,
-      imdbRating: resolvedRating,
-      imdbUrl: trimmedUrl || undefined,
-      posterUrl,
-      list,
-    });
+    if (isEdit) {
+      await onEdit({
+        ...editEntry,
+        name: name.trim(),
+        type,
+        season: type === "series" && season ? parseInt(season) : undefined,
+        platforms,
+        imdbRating: resolvedRating,
+        imdbUrl: trimmedUrl || undefined,
+        posterUrl,
+        list,
+      });
+    } else {
+      await onAdd({
+        name: name.trim(),
+        type,
+        season: type === "series" && season ? parseInt(season) : undefined,
+        platforms,
+        imdbRating: resolvedRating,
+        imdbUrl: trimmedUrl || undefined,
+        posterUrl,
+        list,
+      });
+    }
+
     setSaving(false);
     onClose();
   }
@@ -59,7 +83,9 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-2xl bg-gray-900 p-6 shadow-2xl">
-        <h2 className="mb-5 text-xl font-bold text-white">Add to watchlist</h2>
+        <h2 className="mb-5 text-xl font-bold text-white">
+          {isEdit ? "Edit entry" : "Add to watchlist"}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm text-gray-400">Title</label>
@@ -104,9 +130,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
           <div>
             <label className="mb-2 block text-sm text-gray-400">
               Platform
-              {platforms.length === 0 && (
-                <span className="ml-1 text-red-400">*</span>
-              )}
+              {platforms.length === 0 && <span className="ml-1 text-red-400">*</span>}
             </label>
             <div className="flex flex-wrap gap-2">
               {PLATFORMS.map((p) => {
@@ -189,7 +213,7 @@ export default function AddEntryModal({ activeList, onAdd, onClose }: Props) {
               disabled={saving || platforms.length === 0}
               className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
             >
-              {saving ? "Adding..." : "Add"}
+              {saving ? "Saving..." : isEdit ? "Save" : "Add"}
             </button>
           </div>
         </form>

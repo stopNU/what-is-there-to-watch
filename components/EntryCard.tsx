@@ -5,10 +5,11 @@ import type { WatchEntry } from "@/lib/types";
 
 interface Props {
   entry: WatchEntry;
+  onEdit: (entry: WatchEntry) => void;
   onDelete: (id: string) => void;
 }
 
-export default function EntryCard({ entry, onDelete }: Props) {
+export default function EntryCard({ entry, onEdit, onDelete }: Props) {
   return (
     <div className="group flex items-start gap-3 rounded-xl bg-gray-800 p-3 transition-colors">
       {entry.posterUrl && (
@@ -64,13 +65,22 @@ export default function EntryCard({ entry, onDelete }: Props) {
         </div>
       </div>
 
-      <button
-        onClick={() => onDelete(entry.id)}
-        className="ml-1 mt-0.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all text-lg leading-none"
-        title="Remove"
-      >
-        ×
-      </button>
+      <div className="ml-1 flex shrink-0 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+        <button
+          onClick={() => onEdit(entry)}
+          className="text-gray-500 hover:text-indigo-400 transition-colors text-sm leading-none"
+          title="Edit"
+        >
+          ✎
+        </button>
+        <button
+          onClick={() => onDelete(entry.id)}
+          className="text-gray-500 hover:text-red-400 transition-colors text-lg leading-none"
+          title="Remove"
+        >
+          ×
+        </button>
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ export default function Watchlist() {
   const [entries, setEntries] = useState<WatchEntry[]>([]);
   const [activeTab, setActiveTab] = useState<ListTab>("shared");
   const [showModal, setShowModal] = useState(false);
+  const [editEntry, setEditEntry] = useState<WatchEntry | undefined>();
   const [filterPlatform, setFilterPlatform] = useState<Platform | "all">("all");
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +37,15 @@ export default function Watchlist() {
     });
     const newEntry: WatchEntry = await res.json();
     setEntries((prev) => [...prev, newEntry]);
+  }
+
+  async function handleEdit(updated: WatchEntry) {
+    await fetch("/api/entries", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    });
+    setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
   }
 
   async function handleDelete(id: string) {
@@ -118,7 +128,7 @@ export default function Watchlist() {
                 </h2>
                 <div className="space-y-2">
                   {series.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onDelete={handleDelete} />
+                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={handleDelete} />
                   ))}
                 </div>
               </section>
@@ -130,7 +140,7 @@ export default function Watchlist() {
                 </h2>
                 <div className="space-y-2">
                   {movies.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onDelete={handleDelete} />
+                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={handleDelete} />
                   ))}
                 </div>
               </section>
@@ -139,11 +149,13 @@ export default function Watchlist() {
         )}
       </div>
 
-      {showModal && (
+      {(showModal || editEntry) && (
         <AddEntryModal
           activeList={activeTab}
+          editEntry={editEntry}
           onAdd={handleAdd}
-          onClose={() => setShowModal(false)}
+          onEdit={handleEdit}
+          onClose={() => { setShowModal(false); setEditEntry(undefined); }}
         />
       )}
     </div>

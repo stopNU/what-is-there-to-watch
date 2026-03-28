@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import { getEntries, addEntry, deleteEntry } from "@/lib/kv";
+import { getEntries, addEntry, updateEntry, deleteEntry } from "@/lib/kv";
 import type { WatchEntry } from "@/lib/types";
 
 export async function GET() {
@@ -26,6 +26,17 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("POST /api/entries failed:", err);
     return NextResponse.json({ error: "Failed to add entry" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const entry: WatchEntry = await request.json();
+    await updateEntry(entry);
+    return NextResponse.json(entry);
+  } catch (err) {
+    console.error("PUT /api/entries failed:", err);
+    return NextResponse.json({ error: "Failed to update entry" }, { status: 500 });
   }
 }
 

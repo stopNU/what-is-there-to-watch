@@ -19,6 +19,14 @@ export async function addEntry(entry: WatchEntry): Promise<void> {
   await kv.set(KEY, entries);
 }
 
+export async function updateEntry(updated: WatchEntry): Promise<void> {
+  const entries = await getEntries();
+  await kv.set(
+    KEY,
+    entries.map((e) => (e.id === updated.id ? updated : e))
+  );
+}
+
 export async function deleteEntry(id: string): Promise<void> {
   const entries = await getEntries();
   await kv.set(
