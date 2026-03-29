@@ -71,7 +71,7 @@ export default function Watchlist() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">
@@ -123,13 +123,13 @@ export default function Watchlist() {
               : "No entries match the current filters."}
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="@container space-y-8">
             {series.length > 0 && (
               <section>
                 <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
                   Series <span className="ml-1 opacity-60">{series.length}</span>
                 </h2>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 @lg:grid-cols-2 gap-2">
                   {series.map((entry) => (
                     <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
                   ))}
@@ -141,7 +141,7 @@ export default function Watchlist() {
                 <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
                   Movies <span className="ml-1 opacity-60">{movies.length}</span>
                 </h2>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 @lg:grid-cols-2 gap-2">
                   {movies.map((entry) => (
                     <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
                   ))}
