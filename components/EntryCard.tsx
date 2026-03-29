@@ -6,7 +6,7 @@ import type { WatchEntry } from "@/lib/types";
 interface Props {
   entry: WatchEntry;
   onEdit: (entry: WatchEntry) => void;
-  onDelete: (id: string) => void;
+  onDelete: (entry: WatchEntry) => void;
 }
 
 export default function EntryCard({ entry, onEdit, onDelete }: Props) {
@@ -78,7 +78,7 @@ export default function EntryCard({ entry, onEdit, onDelete }: Props) {
           ✎
         </button>
         <button
-          onClick={() => onDelete(entry.id)}
+          onClick={() => onDelete(entry)}
           className="text-gray-500 hover:text-red-400 transition-colors text-lg leading-none"
           title="Remove"
         >

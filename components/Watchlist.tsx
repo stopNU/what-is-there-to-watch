@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import AddEntryModal from "./AddEntryModal";
 import EntryCard from "./EntryCard";
 import PlatformFilter from "./PlatformFilter";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 import type { WatchEntry, ListTab, Platform } from "@/lib/types";
 
 const TABS: { id: ListTab; label: string }[] = [
@@ -17,6 +18,7 @@ export default function Watchlist() {
   const [activeTab, setActiveTab] = useState<ListTab>("shared");
   const [showModal, setShowModal] = useState(false);
   const [editEntry, setEditEntry] = useState<WatchEntry | undefined>();
+  const [deleteEntry, setDeleteEntry] = useState<WatchEntry | undefined>();
   const [filterPlatform, setFilterPlatform] = useState<Platform | "all">("all");
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +57,7 @@ export default function Watchlist() {
       body: JSON.stringify({ id }),
     });
     setEntries((prev) => prev.filter((e) => e.id !== id));
+    setDeleteEntry(undefined);
   }
 
   const filtered = entries.filter((e) => {
@@ -128,7 +131,7 @@ export default function Watchlist() {
                 </h2>
                 <div className="space-y-2">
                   {series.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={handleDelete} />
+                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
                   ))}
                 </div>
               </section>
@@ -140,7 +143,7 @@ export default function Watchlist() {
                 </h2>
                 <div className="space-y-2">
                   {movies.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={handleDelete} />
+                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
                   ))}
                 </div>
               </section>
@@ -148,6 +151,14 @@ export default function Watchlist() {
           </div>
         )}
       </div>
+
+      {deleteEntry && (
+        <DeleteConfirmModal
+          name={deleteEntry.name}
+          onConfirm={() => handleDelete(deleteEntry.id)}
+          onCancel={() => setDeleteEntry(undefined)}
+        />
+      )}
 
       {(showModal || editEntry) && (
         <AddEntryModal
