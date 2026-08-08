@@ -7,9 +7,11 @@ interface Props {
   entry: WatchEntry;
   onEdit: (entry: WatchEntry) => void;
   onDelete: (entry: WatchEntry) => void;
+  onRefetch: (entry: WatchEntry) => void;
+  refetching?: boolean;
 }
 
-export default function EntryCard({ entry, onEdit, onDelete }: Props) {
+export default function EntryCard({ entry, onEdit, onDelete, onRefetch, refetching }: Props) {
   return (
     <div className="group flex items-start gap-3 rounded-xl bg-gray-800 p-3 transition-colors">
       <div className="shrink-0">
@@ -70,6 +72,14 @@ export default function EntryCard({ entry, onEdit, onDelete }: Props) {
       </div>
 
       <div className="ml-1 flex shrink-0 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+        <button
+          onClick={() => onRefetch(entry)}
+          disabled={!entry.imdbUrl || refetching}
+          className="text-gray-500 hover:text-emerald-400 transition-colors text-sm leading-none disabled:opacity-40 disabled:hover:text-gray-500"
+          title={entry.imdbUrl ? "Refetch poster & rating from IMDB" : "Add an IMDB URL to enable refetching"}
+        >
+          {refetching ? "…" : "↻"}
+        </button>
         <button
           onClick={() => onEdit(entry)}
           className="text-gray-500 hover:text-indigo-400 transition-colors text-sm leading-none"
