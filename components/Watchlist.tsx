@@ -55,7 +55,9 @@ export default function Watchlist() {
     if (!entry.imdbUrl || refetchingId) return;
     setRefetchingId(entry.id);
     try {
-      const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(entry.imdbUrl)}`);
+      const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(entry.imdbUrl)}`, {
+        cache: "no-store",
+      });
       const data = await res.json();
       const updated: WatchEntry = {
         ...entry,
