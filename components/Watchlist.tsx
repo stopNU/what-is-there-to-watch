@@ -21,6 +21,7 @@ export default function Watchlist() {
   const [deleteEntry, setDeleteEntry] = useState<WatchEntry | undefined>();
   const [filterPlatform, setFilterPlatform] = useState<Platform | "all">("all");
   const [loading, setLoading] = useState(true);
+  const [refetchingId, setRefetchingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/entries")
@@ -48,6 +49,23 @@ export default function Watchlist() {
       body: JSON.stringify(updated),
     });
     setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+  }
+
+  async function handleRefetch(entry: WatchEntry) {
+    if (!entry.imdbUrl || refetchingId) return;
+    setRefetchingId(entry.id);
+    try {
+      const res = await fetch(`/api/fetch-poster?imdbUrl=${encodeURIComponent(entry.imdbUrl)}`);
+      const data = await res.json();
+      const updated: WatchEntry = {
+        ...entry,
+        posterUrl: data.posterUrl ?? entry.posterUrl,
+        imdbRating: data.imdbRating ?? entry.imdbRating,
+      };
+      await handleEdit(updated);
+    } finally {
+      setRefetchingId(null);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -131,7 +149,14 @@ export default function Watchlist() {
                 </h2>
                 <div className="grid grid-cols-1 @lg:grid-cols-2 gap-2">
                   {series.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                      onEdit={setEditEntry}
+                      onDelete={setDeleteEntry}
+                      onRefetch={handleRefetch}
+                      refetching={refetchingId === entry.id}
+                    />
                   ))}
                 </div>
               </section>
@@ -143,7 +168,14 @@ export default function Watchlist() {
                 </h2>
                 <div className="grid grid-cols-1 @lg:grid-cols-2 gap-2">
                   {movies.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} onEdit={setEditEntry} onDelete={setDeleteEntry} />
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                      onEdit={setEditEntry}
+                      onDelete={setDeleteEntry}
+                      onRefetch={handleRefetch}
+                      refetching={refetchingId === entry.id}
+                    />
                   ))}
                 </div>
               </section>
